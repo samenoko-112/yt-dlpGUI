@@ -1,0 +1,4 @@
+dl.log
+*.spec
+./build/
+./dist/
