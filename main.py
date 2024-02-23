@@ -4,8 +4,12 @@ from flet import (
 import flet as ft
 import os
 import subprocess
-from plyer import notification
-import winsound
+import platform
+if platform.system() == "Windows":
+    import winsound
+else:
+    pass
+
 
 def main(page:Page):
     page.title = "yt-dlpGUI ver:0.3b"
@@ -91,7 +95,8 @@ def main(page:Page):
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
-                        winsound.MessageBeep(winsound.MB_OK)
+                        if platform.system() == "Windows":
+                            winsound.MessageBeep(winsound.MB_OK)
                         log_file.write(f"{'-'*50} 処理ここまで {'-'*50}\n")
                         return
                     else:
@@ -101,7 +106,8 @@ def main(page:Page):
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
-                        winsound.MessageBeep(winsound.MB_ICONHAND)
+                        if platform.system() == "Windows":
+                            winsound.MessageBeep(winsound.MB_ICONHAND)
                         log_file.write(f"{'-'*50} 処理ここまで {'-'*50}\n")
                         return
                     
