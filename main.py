@@ -5,10 +5,12 @@ import flet as ft
 import os
 import subprocess
 from plyer import notification
-#import winsound
+import winsound
 
 def main(page:Page):
-    page.title = "yt-dlpGUI ver:0.1b"
+    page.title = "yt-dlpGUI ver:0.3b"
+    page.window_left = 100
+    page.window_top = 100
     page.window_width = 550
     page.padding = 16
     home = os.path.expanduser('~')
@@ -32,7 +34,8 @@ def main(page:Page):
             command.append(url)
             if mode_sel.value == "mp4":
                 command.append('-f')
-                command.append('bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]')
+                command.append('bestvideo[ext=mp4]+bestaudio')
+                command.extend(['--merge-output-format','mp4'])
             elif mode_sel.value == "mp3":
                 command.append('-f')
                 command.append('bestaudio')
@@ -51,10 +54,14 @@ def main(page:Page):
                 command.extend(['-N','8'])
             else:
                 pass
-            if playlist.value == True:
+            if playlist.value == True and name_index.value == False:
                 command.extend(['-o',f'{output_path}/%(playlist_title)s/%(title)s.%(ext)s'])
-            else:
+            elif playlist.value == True and name_index.value == True:
+                command.extend(['-o',f'{output_path}/%(playlist_title)s/%(playlist_index)s_%(title)s.%(ext)s'])
+            elif playlist.value == False and name_index.value == False:
                 command.extend(['-o',f'{output_path}/%(title)s.%(ext)s'])
+            elif playlist.value == False and name_index.value == True:
+                command.extend(['-o',f'{output_path}/%(playlist_index)s_%(title)s.%(ext)s'])
             if use_aria2.value == True:
                 command.extend(["--external-downloader", "aria2c", "--external-downloader-args", "-x 16 -s 16"])
             else:
@@ -84,7 +91,7 @@ def main(page:Page):
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
-                        #winsound.MessageBeep(winsound.MB_OK)
+                        winsound.MessageBeep(winsound.MB_OK)
                         log_file.write(f"{'-'*50} 処理ここまで {'-'*50}\n")
                         return
                     else:
@@ -94,7 +101,7 @@ def main(page:Page):
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
-                        #winsound.MessageBeep(winsound.MB_ICONHAND)
+                        winsound.MessageBeep(winsound.MB_ICONHAND)
                         log_file.write(f"{'-'*50} 処理ここまで {'-'*50}\n")
                         return
                     
@@ -110,6 +117,7 @@ def main(page:Page):
     dl_btn = FloatingActionButton("ダウンロード",icon=ft.icons.DOWNLOAD,on_click=download)
     mode_sel = Dropdown(value="mp4",label="フォーマット",options=[dropdown.Option("mp4"),dropdown.Option("mp3"),dropdown.Option("wav")])
     log_out = Text(value=dl_log,max_lines=5,)
+    name_index = Switch(label="プレイリストのインデックスをファイル名に含める",tooltip=f"ファイル名にプレイリストのインデックスを含めます。")
     use_multi = Switch(label="同時接続する",tooltip=f"同時接続して高速でダウンロードできるようにします\nエラーが発生する可能性があります",expand=True)
     emb_thumbnail = Switch(label="サムネイルを埋め込む",tooltip=f"ファイルにサムネイルを埋め込みます")
     playlist = Switch(label="プレイリスト名でフォルダを作成",tooltip=f"プレイリストの名前でフォルダを作成し、その中にファイルを保存します\nプレイリストでない場合はNAに保存されます")
@@ -122,6 +130,7 @@ def main(page:Page):
         Text("オプション",size=18),
         mode_sel,
         playlist,
+        name_index,
         emb_thumbnail,
         ft.Row([use_multi,use_aria2]),
         Text("ログ",size=18),
