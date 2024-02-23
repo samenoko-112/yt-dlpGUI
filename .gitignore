@@ -1,4 +1,4 @@
+/build/*
+/dist/*
 dl.log
-*.spec
-./build/
-./dist/
+yt-dlpGUI.spec
