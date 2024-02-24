@@ -11,4 +11,4 @@ yt-dlpをGUIで扱いやすく。
 
 ## 見た目
 ![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/b9d2d47f-c918-422e-833c-4586d5c3737a)  
-<img width="662" alt="image" src="https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/e5bf77f4-f501-42ad-b699-95c4979fd223">
+![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/e5bf77f4-f501-42ad-b699-95c4979fd223)  
