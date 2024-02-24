@@ -1,2 +1,2 @@
-yt-dlp
-flet
+yt-dlp==2023.12.30
+flet==0.20.2
