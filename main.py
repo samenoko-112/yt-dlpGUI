@@ -20,6 +20,7 @@ def main(page:Page):
     home = os.path.expanduser('~')
     output_path = home+"/yt-dlp"
     dl_log = "実行時のログ"
+    cookie_file = ""
 
     def sel_path(e: FilePickerResultEvent):
         nonlocal output_path
@@ -27,6 +28,17 @@ def main(page:Page):
         output_path = e.path if e.path else before
         path_input.value = output_path
         path_input.update()
+        return
+    
+    def sel_cookie(e: FilePickerResultEvent):
+        nonlocal cookie_file
+        if e.files:
+            cookie_file = e.files[0].path
+        else:
+            cookie_file = ""
+        cookie_input.value = cookie_file
+        cookie_input.update()
+        print(cookie_file)
         return
     
     def download(e):
@@ -74,6 +86,8 @@ def main(page:Page):
                 command.extend(['--embed-thumbnail'])
             else:
                 pass
+            if cookie_file:
+                command.extend(['--cookies', cookie_input.value])
 
             with open("dl.log","a") as log_file:
 
@@ -114,13 +128,16 @@ def main(page:Page):
 
     
     dir_dialog = FilePicker(on_result=sel_path)
+    cookie_select = FilePicker(on_result=sel_cookie)
 
-    page.overlay.extend([dir_dialog])
+    page.overlay.extend([dir_dialog,cookie_select])
 
     url_input = TextField(hint_text="URLを入力",label="URL",icon=ft.icons.MOVIE)
     path_input = TextField(value=output_path,hint_text="保存先を選択",label="保存先",icon=ft.icons.FOLDER,expand=True,read_only=True)
     path_btn = ft.TextButton("選択",icon=ft.icons.FOLDER_COPY,on_click=lambda _:dir_dialog.get_directory_path())
     dl_btn = FloatingActionButton("ダウンロード",icon=ft.icons.DOWNLOAD,on_click=download)
+    cookie_input = TextField(value=cookie_file, hint_text="Cookieファイルを選択", label="Cookie", icon=ft.icons.COOKIE, expand=True, read_only=True)
+    cookie_btn = ft.TextButton("選択", icon=ft.icons.COOKIE, on_click=lambda _:cookie_select.pick_files(allowed_extensions=["txt"]))
     mode_sel = Dropdown(value="mp4",label="フォーマット",options=[dropdown.Option("mp4"),dropdown.Option("mp3"),dropdown.Option("wav")])
     log_out = Text(value=dl_log,max_lines=5,)
     name_index = Switch(label="プレイリストのインデックスをファイル名に含める",tooltip=f"ファイル名にプレイリストのインデックスを含めます。")
@@ -139,6 +156,7 @@ def main(page:Page):
         name_index,
         emb_thumbnail,
         ft.Row([use_multi,use_aria2]),
+        ft.Row([cookie_input, cookie_btn]),
         Text("ログ",size=18),
         log_out,
         dl_btn
