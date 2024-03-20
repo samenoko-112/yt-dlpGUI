@@ -2,6 +2,7 @@ from flet import (
     Page,Text,ElevatedButton,FloatingActionButton,TextField,Dropdown,dropdown,Switch,FilePicker,FilePickerResultEvent
 )
 import flet as ft
+import time
 import os
 import subprocess
 import platform
@@ -16,11 +17,13 @@ def main(page:Page):
     page.window_left = 100
     page.window_top = 100
     page.window_width = 550
+    page.window_height = 800
     page.padding = 16
     home = os.path.expanduser('~')
     output_path = home+"/yt-dlp"
     dl_log = "実行時のログ"
     cookie_file = ""
+    log = ft.Column(controls=[],scroll=ft.ScrollMode.AUTO,height=100,spacing=-20,auto_scroll=True)
 
     def sel_path(e: FilePickerResultEvent):
         nonlocal output_path
@@ -93,19 +96,20 @@ def main(page:Page):
 
                 with subprocess.Popen(command,stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
 
+                    log.controls.clear()
+                    log.update()
+
                     dl_btn.text = "ダウンロード中"
                     dl_btn.disabled = True
                     dl_btn.update()
 
                     for line in process.stdout:
-                        log_out.value = line
-                        log_out.update()
+                        log.controls.extend([ft.Text(line)])
+                        log.update()
                         log_file.write(line)
+                        time.sleep(0.2)
                     process.wait()
                     if process.returncode == 0:
-                        dl_log = "正常に終了!!"
-                        log_out.value = dl_log
-                        log_out.update()
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
@@ -114,9 +118,6 @@ def main(page:Page):
                         log_file.write(f"{'-'*50} 処理ここまで {'-'*50}\n")
                         return
                     else:
-                        dl_log = "エラーが発生したってよ"
-                        log_out.value = dl_log
-                        log_out.update()
                         dl_btn.text = "ダウンロード"
                         dl_btn.disabled = False
                         dl_btn.update()
@@ -158,7 +159,7 @@ def main(page:Page):
         ft.Row([use_multi,use_aria2]),
         ft.Row([cookie_input, cookie_btn]),
         Text("ログ",size=18),
-        log_out,
+        log,
         dl_btn
     )
 
