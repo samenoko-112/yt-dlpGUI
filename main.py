@@ -13,7 +13,7 @@ else:
 
 
 def main(page:Page):
-    page.title = "yt-dlpGUI ver:0.3b"
+    page.title = "yt-dlpGUI ver:0.5"
     page.window_left = 100
     page.window_top = 100
     page.window_width = 550
