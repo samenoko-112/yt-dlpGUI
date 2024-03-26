@@ -1,3 +1,3 @@
 @echo off
-flet pack -n yt-dlpGUI main.py
+flet build windows . --product "yt-dlpGUI" --project "yt-dlpGUI"
 pause
