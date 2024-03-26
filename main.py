@@ -13,7 +13,7 @@ else:
 
 
 def main(page:Page):
-    page.title = "yt-dlpGUI ver:0.5"
+    page.title = "yt-dlpGUI ver:0.6"
     page.fonts = {
         "MPLUS": "fonts/mplus.ttf",
     }
@@ -55,9 +55,18 @@ def main(page:Page):
         if url != "":
             command.append(url)
             if mode_sel.value == "mp4":
-                command.append('-f')
-                command.append('bestvideo[ext=mp4]+bestaudio')
                 command.extend(['--merge-output-format','mp4'])
+                command.append('-f')
+                if quality_sel.value == "自動":
+                    command.append('bestvideo[ext=mp4]+bestaudio/best[ext=mp4]')
+                elif quality_sel.value == "1080p":
+                    command.append('bestvideo[ext=mp4][height<=1080]+bestaudio/best[ext=mp4][height<=1080]')
+                elif quality_sel.value == "720p":
+                    command.append('bestvideo[ext=mp4][height<=720]+bestaudio/best[ext=mp4][height<=720]')
+                elif quality_sel.value == "480p":
+                    command.append('bestvideo[ext=mp4][height<=480]+bestaudio/best[ext=mp4][height<=480]')
+                elif quality_sel.value == "360p":
+                    command.append('bestvideo[ext=mp4][height<=360]+bestaudio/best[ext=mp4][height<=360]')
             elif mode_sel.value == "mp3":
                 command.append('-f')
                 command.append('bestaudio')
@@ -94,6 +103,7 @@ def main(page:Page):
                 pass
             if cookie_file:
                 command.extend(['--cookies', cookie_input.value])
+            print(command)
 
             with open("dl.log","a") as log_file:
 
@@ -107,7 +117,7 @@ def main(page:Page):
                         log_out.value = line
                         log_out.update()
                         log_file.write(line)
-                        time.sleep(0.1)
+
                     process.wait()
                     if process.returncode == 0:
                         log_out.value = "正常にダウンロードできました"
@@ -143,7 +153,8 @@ def main(page:Page):
     dl_btn = FloatingActionButton("ダウンロード",icon=ft.icons.DOWNLOAD,on_click=download)
     cookie_input = TextField(value=cookie_file, hint_text="Cookieファイルを選択", label="Cookie", icon=ft.icons.COOKIE, expand=True, read_only=True)
     cookie_btn = ft.TextButton("選択", icon=ft.icons.COOKIE, on_click=lambda _:cookie_select.pick_files(allowed_extensions=["txt"]))
-    mode_sel = Dropdown(value="mp4",label="フォーマット",options=[dropdown.Option("mp4"),dropdown.Option("mp3"),dropdown.Option("wav")])
+    mode_sel = Dropdown(value="mp4",label="フォーマット",options=[dropdown.Option("mp4"),dropdown.Option("mp3"),dropdown.Option("wav")],expand=True)
+    quality_sel = Dropdown(value="自動",label="画質(mp4のみ)",options=[dropdown.Option("自動"),dropdown.Option("1080p"),dropdown.Option("720p"),dropdown.Option("480p"),dropdown.Option("360p")],expand=True)
     log_out = Text(value=dl_log,max_lines=5,)
     name_index = Switch(label="プレイリストのインデックスをファイル名に含める",tooltip=f"ファイル名にプレイリストのインデックスを含めます。")
     use_multi = Switch(label="同時接続する",tooltip=f"同時接続して高速でダウンロードできるようにします\nエラーが発生する可能性があります",expand=True)
@@ -156,7 +167,7 @@ def main(page:Page):
         url_input,
         ft.Row([path_input,path_btn]),
         Text("オプション",size=18),
-        mode_sel,
+        ft.Row([mode_sel,quality_sel]),
         playlist,
         name_index,
         emb_thumbnail,
