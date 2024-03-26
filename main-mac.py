@@ -14,6 +14,10 @@ else:
 
 def main(page:Page):
     page.title = "yt-dlpGUI ver:0.5"
+    page.fonts = {
+        "MPLUS": "fonts/mplus.ttf",
+    }
+    page.theme = ft.Theme(font_family="MPLUS")
     page.window_left = 100
     page.window_top = 100
     page.window_width = 550
@@ -163,4 +167,4 @@ def main(page:Page):
         dl_btn
     )
 
-ft.app(main)
+ft.app(main,assets_dir="assets")
