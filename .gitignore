@@ -3,3 +3,4 @@
 dl.log
 yt-dlpGUI.spec
 .DS_Store
+/venv/

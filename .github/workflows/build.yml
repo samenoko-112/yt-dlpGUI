@@ -1,0 +1,66 @@
+name: Build and Release
+
+on:
+  push:
+    paths:
+      - 'main.py'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10.9'
+
+      - name: Install Requirements
+        run: |
+          cd ${{ github.workspace }}
+          pip install -r requirements.txt
+          pip install pyinstaller pillow
+
+      - name: Build exe
+        run: |
+          cd ${{ github.workspace }}
+          flet pack main.py --name yt-dlpGUI
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: exe
+          path: dist/yt-dlpGUI.exe
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: exe
+          path: artifacts
+
+      - name: Set Date
+        run: |
+          DATE_TIME=$(date +'%Y-%m-%d-%H-%M-%S')
+          echo "DATE_TIME=${DATE_TIME}" >> $GITHUB_ENV
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATE_TIME: ${{ env.DATE_TIME }}
+        run: |
+          RELEASE_NAME="Build-${DATE_TIME}"
+          TAG_NAME="build-${DATE_TIME}"
+          gh release create "$TAG_NAME" ${{ github.workspace }}/artifacts/*.exe --title "$RELEASE_NAME"
