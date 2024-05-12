@@ -63,4 +63,4 @@ jobs:
         run: |
           RELEASE_NAME="Build-${DATE_TIME}"
           TAG_NAME="build-${DATE_TIME}"
-          gh release create "$TAG_NAME" ${{ github.workspace }}/artifacts/*.exe --title "$RELEASE_NAME"
+          gh release create "$TAG_NAME" ${{ github.workspace }}/artifacts/*.exe --title "$RELEASE_NAME" --note "不審なファイルとしてブロックされる場合がありますが、Pyinstallerの仕様です。"
