@@ -207,4 +207,4 @@ def main(page:Page):
         dl_btn
     )
 
-ft.app(main,assets_dir="assets")
+ft.app(main)
