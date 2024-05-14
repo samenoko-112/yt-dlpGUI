@@ -6,25 +6,23 @@ import time
 import os
 import subprocess
 
+version = 1.0
+
 process_running = False
 current_process = None
 
 dl_log = "実行時のログ"
 cookie_file = ""
+home = os.path.expanduser('~')
+output_path = home+"/yt-dlp"
 
 def main(page:Page):
-    page.title = "yt-dlpGUI ver:0.6"
-    page.fonts = {
-        "MPLUS": "fonts/mplus.ttf",
-    }
-    page.theme = ft.Theme(font_family="MPLUS")
+    page.title = f"yt-dlpGUI ver.{version}"
     page.window_left = 100
     page.window_top = 100
     page.window_width = 550
     page.window_height = 800
     page.padding = 16
-    home = os.path.expanduser('~')
-    output_path = home+"/yt-dlp"
 
     def sel_path(e: FilePickerResultEvent):
         global output_path
