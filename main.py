@@ -30,9 +30,11 @@ def main(page:Page):
     def change_options(e):
         if mode_sel.value == "mp4":
             quality_sel.options = mp4_quality
+            quality_sel.value = "Auto"
             quality_sel.update()
         elif mode_sel.value == "mp3":
             quality_sel.options = mp3_quality
+            quality_sel.value = "Auto"
             quality_sel.update()
         else:
             quality_sel.options = []
@@ -113,7 +115,7 @@ def main(page:Page):
                 command.append('--audio-format')
                 command.append('wav')
             if use_multi.value == True:
-                command.extend(['-N',f'{multi_threads.value}'])
+                command.extend(['-N',f'{int(multi_threads.value)}'])
             else:
                 pass
             if playlist.value == True and name_index.value == False:
@@ -212,7 +214,7 @@ def main(page:Page):
     progress_bar = ft.ProgressBar(value=0)
     name_index = Switch(label="プレイリストのインデックスをファイル名に含める",tooltip=f"ファイル名にプレイリストのインデックスを含めます。")
     use_multi = Switch(label="同時接続する",tooltip=f"同時接続して高速でダウンロードできるようにします\nエラーが発生する可能性があります",expand=True,on_change=display_multi)
-    multi_threads = ft.Slider(value=8,max=20,min=1,divisions=20,visible=False,tooltip="{value}")
+    multi_threads = ft.Slider(value=8,max=20,min=1,divisions=20,visible=False,label="{value}")
     emb_thumbnail = Switch(label="サムネイルを埋め込む",tooltip=f"ファイルにサムネイルを埋め込みます")
     playlist = Switch(label="プレイリスト名でフォルダを作成",tooltip=f"プレイリストの名前でフォルダを作成し、その中にファイルを保存します\nプレイリストでない場合はNAに保存されます")
     use_aria2 = Switch(label="Aria2を使う",tooltip=f"外部ダウンローダーであるAria2を使用します。\n同時接続数を増やし高速でダウンロードできるようにします\n接続が制限され極端に速度が低下する可能性があります",expand=True)
