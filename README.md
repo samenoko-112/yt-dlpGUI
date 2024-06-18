@@ -9,6 +9,12 @@ yt-dlpをGUIで扱いやすく。
 - Aria2を使用したダウンロード高速化
 - 終了時の通知
 
+## 動作に必要なもの
+- yt-dlp
+- ffmpeg
+- Aria2(任意)
+
+それぞれパスを通すかyt-dlpGUI.exeと同じディレクトリに配置してください。
 ## 見た目
 ![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/b9d2d47f-c918-422e-833c-4586d5c3737a)  
 ![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/e5bf77f4-f501-42ad-b699-95c4979fd223)  
