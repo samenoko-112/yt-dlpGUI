@@ -6,7 +6,7 @@ import time
 import os
 import subprocess
 
-version = 1.0
+version = 1.11
 
 process_running = False
 current_process = None
@@ -137,6 +137,8 @@ def main(page:Page):
             if cookie_file:
                 command.extend(['--cookies', cookie_input.value])
             print(command)
+            dl_btn.text = "ダウンロード中"
+            dl_btn.update()
 
             process_running = True
 
