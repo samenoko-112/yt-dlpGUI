@@ -18,10 +18,10 @@ output_path = home+"/yt-dlp"
 
 def main(page:Page):
     page.title = f"yt-dlpGUI ver.{version}"
-    page.window_left = 100
-    page.window_top = 100
-    page.window_width = 550
-    page.window_height = 800
+    page.window.left = 100
+    page.window.top = 100
+    page.window.width = 550
+    page.window.height = 800
     page.padding = 16
 
     mp4_quality = [dropdown.Option(key="Auto"),dropdown.Option(key="1080p"),dropdown.Option(key="720p"),dropdown.Option(key="480p"),dropdown.Option(key="360p"),dropdown.Option(key="240p"),dropdown.Option(key="144p")]
