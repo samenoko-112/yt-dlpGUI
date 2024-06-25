@@ -5,3 +5,8 @@ yt-dlpGUI.spec
 .DS_Store
 /venv/
 *.log
+*.xml
+*.exe
+main.dist/
+main.build/
+main.onefile-build/
