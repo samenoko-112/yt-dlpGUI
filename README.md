@@ -1,5 +1,10 @@
 # yt-dlpGUI
 yt-dlpをGUIで扱いやすく。
+
+## windowsのみをサポート
+Windows以外の開発環境で開発するのはめんどくさいのでWindows向けに整備しています。  
+Releaseはexeのみですし、pyファイルもそのままでは動作しない可能性があります。  
+
 ## 機能
 - 動画(mp4)、音声(mp3,wav)でダウンロード
 - プレイリストでフォルダ分け
@@ -17,7 +22,6 @@ yt-dlpをGUIで扱いやすく。
 それぞれパスを通すかyt-dlpGUI.exeと同じディレクトリに配置してください。
 ## 見た目
 ![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/b9d2d47f-c918-422e-833c-4586d5c3737a)  
-![image](https://github.com/ziaenso-kuma/yt-dlpGUI/assets/114263475/e5bf77f4-f501-42ad-b699-95c4979fd223)  
 
 ## 免責事項
 1. 本アプリを使用してダウンロードされるすべての動画やコンテンツに関する著作権、知的財産権、または法的権利は、それぞれの所有者に帰属します。本アプリの使用者は、著作権や法的権利を侵害しないように留意する必要があります。
