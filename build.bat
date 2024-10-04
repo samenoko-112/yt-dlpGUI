@@ -1,3 +1,3 @@
 @echo off
-pyinstaller main_re.py --clean --noconsole --name yt-dlpGUI
+flet pack -n yt-dlpGUI -i assets/icon.png main_re.py
 pause
