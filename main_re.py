@@ -6,10 +6,9 @@ import time
 import os
 from yt_dlp import YoutubeDL
 import re
-import logging
-
-logging.basicConfig(level=logging.DEBUG,filename="out.log",filemode='a')
-logging.getLogger("flet_core").setLevel(logging.INFO)
+from win11toast import toast
+import tempfile
+import requests
 
 version = 1.2
 
@@ -90,11 +89,20 @@ def main(page:Page):
         # yt-dlp用のオプションを作成
         ydl_opts = {
             'format': 'best',
-            'addmetadata': True,
             'progress_hooks': [hook],
             'postprocessor_hooks': [post_hook],
-            'quiet': True,
+            'quiet': False,
+            'postprocessors': [
+                {
+                    'key': 'FFmpegMetadata',
+                    'add_metadata': True,
+                }
+            ],
+            'color': 'no_color',
+            'default_search': 'auto'
         }
+
+        ydl_opts['outtmpl'] = f'{output_path}/%(title)s.%(ext)s'
 
         # モードと品質に基づいてオプションを設定
         if mode_sel.value == "mp4":
@@ -112,45 +120,55 @@ def main(page:Page):
             elif quality_sel.value == "144p":
                 ydl_opts['format'] = 'bestvideo[ext=mp4][height<=144]+bestaudio[ext=m4a]/best[ext=mp4][height<=144]'
             
-            # サムネイル埋め込みのポストプロセッサ
+            # サムネイル埋め込みのポストプロセッサを追加
             if emb_thumbnail.value:
                 ydl_opts['writethumbnail'] = True
-                ydl_opts.setdefault('postprocessors', []).append({
-                    'key': 'EmbedThumbnail'  # mp4にサムネイルを埋め込む
+                ydl_opts['postprocessors'].append({
+                    'key': 'EmbedThumbnail',  # mp4にサムネイルを埋め込む
                 })
 
         elif mode_sel.value == "mp3":
             ydl_opts['format'] = 'bestaudio/best'
-            ydl_opts['postprocessors'] = [{
+            ydl_opts['postprocessors'].append({
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-            }]
-            # mp3の品質設定
-            if quality_sel.value == "320kbps":
-                ydl_opts['postprocessors'][0]['preferredquality'] = '320'
-            elif quality_sel.value == "128kbps":
-                ydl_opts['postprocessors'][0]['preferredquality'] = '128'
-            else:
-                ydl_opts['postprocessors'][0]['preferredquality'] = '192'  # デフォルトは192kbps
-            
-            # mp3にサムネイルを埋め込むポストプロセッサ
+            })
+
+            # mp3の品質設定を確実にするために、FFmpegExtractAudioを検索して設定
+            for processor in ydl_opts['postprocessors']:
+                if processor.get('key') == 'FFmpegExtractAudio' and processor.get('preferredcodec') == 'mp3':
+                    if quality_sel.value == "320kbps":
+                        processor['preferredquality'] = '320'
+                    elif quality_sel.value == "128kbps":
+                        processor['preferredquality'] = '128'
+                    else:
+                        processor['preferredquality'] = '192'  # デフォルトは192kbps
+                    break
+
+            # mp3にサムネイルを埋め込むポストプロセッサを追加
             if emb_thumbnail.value:
                 ydl_opts['writethumbnail'] = True
                 ydl_opts['postprocessors'].append({
-                    'key': 'EmbedThumbnail'  # mp3にサムネイルを埋め込む
+                    'key': 'EmbedThumbnail',
                 })
 
         elif mode_sel.value == "wav":
             ydl_opts['format'] = 'bestaudio'
-            ydl_opts['postprocessors'] = [{
+            ydl_opts['postprocessors'].append({
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'wav',
-            }]
+            })
             # wavにはサムネイルを無視
 
         # その他のオプション設定（マルチスレッドなど）
         if use_multi.value:
             ydl_opts['n_threads'] = int(multi_threads.value)
+
+        if playlist.value:
+            if name_index.value:
+                ydl_opts['outtmpl'] = f'{output_path}/%(playlist_title)s/%(playlist_index)s_%(title)s.%(ext)s'
+            else:
+                ydl_opts['outtmpl'] = f'{output_path}/%(playlist_title)s/%(title)s.%(ext)s'
 
         if cookie_file:
             ydl_opts['cookiefile'] = cookie_input.value
@@ -158,8 +176,6 @@ def main(page:Page):
         if use_aria2.value:
             ydl_opts['external_downloader'] = 'aria2c'
             ydl_opts['external_downloader_args'] = ['-x', '16', '-s', '16']
-
-        ydl_opts['outtmpl'] = f'{output_path}/%(title)s.%(ext)s'
 
 
         dl_btn.text = "ダウンロード中"
@@ -177,6 +193,12 @@ def main(page:Page):
             with YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url,download=False)
                 title = info.get('title','None')
+                samune = info.get('thumbnail',None)
+                if samune:
+                    with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as temp_file:
+                        response = requests.get(samune)
+                        temp_file.write(response.content)
+                        samune_path = temp_file.name
                 ydl.download([url])
             
             log_out.value = "正常にダウンロードできました"
@@ -185,6 +207,17 @@ def main(page:Page):
             dl_btn.update()
             progress_bar.value = 1
             progress_bar.update()
+            print(samune)
+            if samune:
+                image = {
+                    'src': samune_path,
+                    'placement': 'hero'
+                }
+                toast("ダウンロード完了",f"{title}のダウンロードが完了しました",image=image)
+                os.remove(samune_path)
+            else:
+                toast("ダウンロード完了",f"{title}のダウンロードが完了しました")
+
 
         except Exception as e:
             log_out.value = f"エラーが発生しました: {str(e)}"
@@ -193,6 +226,7 @@ def main(page:Page):
             dl_btn.update()
             progress_bar.value = 0
             progress_bar.update()
+            toast("エラー",f"{e}")
 
         finally:
             process_running = False
