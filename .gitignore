@@ -12,3 +12,5 @@ main.build/
 main.onefile-build/
 *.dist/
 *build/
+*.iss
+*.spec
