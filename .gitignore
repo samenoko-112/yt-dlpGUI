@@ -10,3 +10,5 @@ yt-dlpGUI.spec
 main.dist/
 main.build/
 main.onefile-build/
+*.dist/
+*build/
