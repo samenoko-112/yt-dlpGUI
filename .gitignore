@@ -14,3 +14,5 @@ main.onefile-build/
 *build/
 *.iss
 *.spec
+generated-*.ico
+__pycache__/
