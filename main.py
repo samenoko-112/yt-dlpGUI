@@ -4,7 +4,7 @@ import re
 import json
 import os
 import time
-from desktop_notifier import DesktopNotifier
+from win11toast import toast
 
 outpath = os.path.expanduser('~') + "/ytdlp"
 
@@ -19,8 +19,6 @@ def main(page: Page):
         "KosugiMaru": "fonts/KosugiMaru-Regular.ttf"
     }
     page.theme = Theme(font_family="KosugiMaru")
-
-    notify = DesktopNotifier()
 
     def change_ext(e):
         if ext_sel.value == "mp4":
@@ -49,7 +47,7 @@ def main(page: Page):
 
         dl_btn.disabled = True
         dl_btn.text = "ダウンロード中"
-        dl_btn.icon = icons.DOWNLOADING
+        dl_btn.icon = Icons.DOWNLOADING
         dl_btn.update()
 
         progress_bar.value = None
@@ -156,10 +154,8 @@ def main(page: Page):
                         now_title.label = f"ダウンロード中のタイトル ({idx}/{total_videos})"
                         now_title.value = title
                         now_title.update()
-                        playlist_index = video.get("playlist_index",idx)
-                        ydl_opts["outtmpl"] = f"{outpath}/{playlist_index} - {title}.%(ext)s"
                         ydl.download([video["webpage_url"]])
-                        notify.send(title=f"ダウンロード完了 ({idx}/{total_videos})",message=f"{title}をダウンロードしました")
+                        toast(f"ダウンロード完了 ({idx}/{total_videos})",f"{title}",image={"src":video["thumbnail"],"placement":"hero"})
 
                 else:
                     now_title.label = "ダウンロード中のタイトル (1/1)"
@@ -167,7 +163,7 @@ def main(page: Page):
                     now_title.value = title
                     now_title.update()
                     ydl.download([info["webpage_url"]])
-                    notify.send(title=f"ダウンロード完了",message=f"{title}をダウンロードしました")
+                    toast(f"ダウンロード完了",f"{title}",image={"src":info["thumbnail"],"placement":"hero"})
 
                 now_title.value = "なし"
                 now_title.update()
@@ -185,7 +181,7 @@ def main(page: Page):
         finally:
             dl_btn.disabled = False
             dl_btn.text = "ダウンロード"
-            dl_btn.icon = icons.DOWNLOAD
+            dl_btn.icon = Icons.DOWNLOAD
             dl_btn.update()
             now_title.label = "ダウンロード中のタイトル"
             now_title.update()
@@ -196,9 +192,9 @@ def main(page: Page):
 
     # UI要素
     url_input = TextField(label="URL", hint_text="URLを入力", tooltip="URLを入力してください。\n例: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-    dl_btn = FloatingActionButton(text="ダウンロード", icon=icons.DOWNLOAD, on_click=download)
+    dl_btn = FloatingActionButton(text="ダウンロード", icon=Icons.DOWNLOAD, on_click=download)
     outpath_input = TextField(value=outpath,label="保存先",expand=True,read_only=True)
-    outpath_btn = TextButton("選択",icon=icons.FOLDER,on_click=lambda _:outpath_dialog.get_directory_path(dialog_title="保存先を選択"))
+    outpath_btn = TextButton("選択",icon=Icons.FOLDER,on_click=lambda _:outpath_dialog.get_directory_path(dialog_title="保存先を選択"))
     now_title = TextField(label="ダウンロード中のタイトル", read_only=True, value="なし")
     progress_bar = ProgressBar(value=0)
     ext_sel = Dropdown(label="拡張子",options=[dropdown.Option(key="mp4"), dropdown.Option(key="mp3")],expand=True,on_change=change_ext,value="mp4")
