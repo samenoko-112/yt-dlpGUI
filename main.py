@@ -115,6 +115,7 @@ def main(page: Page):
                 }
             ],
             "quiet": False,
+            "ignoreerrors": True,
         }
 
         if cookie_input.value:
@@ -129,69 +130,53 @@ def main(page: Page):
             ydl_opts["outtmpl"] = f"{outpath}/%(playlist_index)02d - %(title)s.%(ext)s" if not playlist.value else f"{outpath}/%(playlist_title)s/%(playlist_index)02d - %(title)s.%(ext)s"
 
         if ext == "mp4":
-            if quality == "Auto" :
-                ydl_opts["format"] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "144p":
-                ydl_opts["format"] = "bestvideo[height<=144]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "240p":
-                ydl_opts["format"] = "bestvideo[height<=240]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "360p":
-                ydl_opts["format"] = "bestvideo[height<=360]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "480p":
-                ydl_opts["format"] = "bestvideo[height<=480]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "720p":
-                ydl_opts["format"] = "bestvideo[height<=720]+bestaudio[ext=m4a]/best[ext=mp4]"
-            elif quality == "1080p":
-                ydl_opts["format"] = "bestvideo[height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]"
+            quality_formats = {
+                "Auto": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "144p": "bestvideo[height<=144]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "240p": "bestvideo[height<=240]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "360p": "bestvideo[height<=360]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "480p": "bestvideo[height<=480]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "720p": "bestvideo[height<=720]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "1080p": "bestvideo[height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]",
+            }
+            ydl_opts["format"] = quality_formats.get(quality, quality_formats["Auto"])  # デフォルトは"Auto"
 
-            if add_metadata.value:
+            if add_samune.value:
                 ydl_opts["writethumbnail"] = True
-                ydl_opts["postprocessors"].append({
-                    'key': 'EmbedThumbnail'
-                })
-        
+                if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail"})
+
         elif ext == "mp3":
             ydl_opts["format"] = "bestaudio/best"
-            ydl_opts["postprocessors"].append({
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3'
-            })
-            if add_metadata.value:
-                ydl_opts["writethumbnail"] = True
+            if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
                 ydl_opts["postprocessors"].append({
-                    'key': 'EmbedThumbnail'
-            })
-            
-            for processor in ydl_opts["postprocessors"]:
-                if processor.get('key') == 'FFmpegExtractAudio' and processor.get('preferredcodec') == 'mp3':
-                    if quality == "128kbps":
-                        processor['preferredquality'] = '128'
-                    elif quality == "192kbps":
-                        processor['preferredquality'] = '192'
-                    elif quality == "256kbps":
-                        processor['preferredquality'] = '256'
-                    elif quality == "320kbps":
-                        processor['preferredquality'] = '320'
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3"
+                })
+
+            if add_samune.value:
+                ydl_opts["writethumbnail"] = True
+                if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail"})
+
+            # 音質を設定
+            audio_quality_map = {
+                "128kbps": "128",
+                "192kbps": "192",
+                "256kbps": "256",
+                "320kbps": "320"
+            }
+            preferred_quality = audio_quality_map.get(quality)
+            if preferred_quality:
+                for processor in ydl_opts["postprocessors"]:
+                    if processor.get("key") == "FFmpegExtractAudio" and processor.get("preferredcodec") == "mp3":
+                        processor["preferredquality"] = preferred_quality
+
         
         try:
             with YoutubeDL(ydl_opts) as ydl:
-                # プレイリストかどうかのチェック
                 info = ydl.extract_info(url, download=False)
-                timestamp = time.strftime("%Y%m%d%H%M%S")
-                json_filename = f"downloads/{timestamp}.json"
-                os.makedirs("downloads", exist_ok=True)
-
-                with open(json_filename, "w", encoding="utf-8") as json_file:
-                    json.dump(info, json_file, ensure_ascii=False, indent=4)
-
-                print(f"プレイリストのダウンロードが完了しました。JSONファイル: {json_filename}")
-
-                if "entries" in info:
-                    ydl.download([info["webpage_url"]])
-
-                else:
-                    ydl.download([info["webpage_url"]])
-
+                ydl.download([info["webpage_url"]])
                 now_title.value = "なし"
                 now_title.update()
                 status_text.value = "ダウンロード完了"
@@ -230,11 +215,11 @@ def main(page: Page):
     playlist = Switch(label="プレイリストのタイトルでフォルダを作成")
     playlist_index = Switch(label="プレイリストのインデックスをファイル名に追加")
     cookie_input = TextField(label="Cookie",expand=True,read_only=True)
-    add_metadata = Switch(label="メタデータを追加")
+    add_samune = Switch(label="サムネイルを追加")
     cookie_btn = TextButton("選択",icon=icons.COOKIE,on_click=lambda _:cookie_dialog.pick_files(allow_multiple=False,allowed_extensions=["txt"]))
     status_text = Text(value="進捗情報がここに表示されます")
 
     # レイアウト
-    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]),playlist,playlist_index,add_metadata,Row([cookie_input,cookie_btn]), now_title, progress_bar, status_text)
+    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]),playlist,playlist_index,add_samune,Row([cookie_input,cookie_btn]), now_title, progress_bar, status_text)
 
 app(target=main, assets_dir="assets")
