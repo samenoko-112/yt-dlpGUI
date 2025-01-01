@@ -12,7 +12,7 @@ mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdo
 mp3_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="128kbps"), dropdown.Option(key="192kbps"), dropdown.Option(key="256kbps"), dropdown.Option(key="320kbps")]
 
 def main(page: Page):
-    page.title = "yt-dlp GUI"
+    page.title = "yt-dlpGUI"
     page.window.width = 500
     page.padding = 16
     page.fonts = {
