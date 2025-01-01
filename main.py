@@ -6,6 +6,7 @@ import os
 import time
 
 outpath = os.path.expanduser('~') + "/ytdlp"
+cookie = None
 
 mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdown.Option(key="240p"), dropdown.Option(key="360p"), dropdown.Option(key="480p"), dropdown.Option(key="720p"), dropdown.Option(key="1080p")]
 mp3_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="128kbps"), dropdown.Option(key="192kbps"), dropdown.Option(key="256kbps"), dropdown.Option(key="320kbps")]
@@ -36,6 +37,15 @@ def main(page: Page):
         outpath = e.path if e.path else before
         outpath_input.value = outpath
         outpath_input.update()
+    
+    def sel_cookie(e: FilePickerResultEvent):
+        global cookie
+        if e.files:
+            cookie = e.files[0].path
+        else:
+            cookie = ""
+        cookie_input.value = cookie
+        cookie_input.update()
 
     # ANSIコードを削除する関数
     def remove_ansi_codes(text):
@@ -75,8 +85,12 @@ def main(page: Page):
                 # その他の進捗情報を表示
                 speed = remove_ansi_codes(d.get("_speed_str", "不明"))
                 eta = remove_ansi_codes(d.get("_eta_str", "不明"))
+                
                 status_text.value = f"進捗: {progress}% | 速度: {speed} | 残り時間: {eta}"
                 status_text.update()
+                title = remove_ansi_codes(d.get("filename"))
+                now_title.value = title.replace(outpath,"")
+                now_title.update()
 
             elif d["status"] == "postprocessing":
                 progress_bar.value = None
@@ -96,6 +110,17 @@ def main(page: Page):
             "progress_hooks": [hook],
             "postprocessors": []
         }
+
+        if cookie_input.value:
+            ydl_opts["cookiefile"] = cookie
+
+        # プレイリストのタイトルでフォルダを作成
+        if playlist.value:
+            ydl_opts["outtmpl"] = f"{outpath}/%(playlist_title)s/%(title)s.%(ext)s"
+
+        # プレイリストのインデックスをファイル名に追加
+        if playlist_index.value:
+            ydl_opts["outtmpl"] = f"{outpath}/%(playlist_index)02d - %(title)s.%(ext)s" if not playlist.value else f"{outpath}/%(playlist_title)s/%(playlist_index)02d - %(title)s.%(ext)s"
 
         if ext == "mp4":
             if quality == "Auto" :
@@ -143,23 +168,9 @@ def main(page: Page):
                 print(f"プレイリストのダウンロードが完了しました。JSONファイル: {json_filename}")
 
                 if "entries" in info:
-                    total_videos = len(info["entries"])
-                    now_title.label = f"ダウンロード中のタイトル (0/{total_videos})"
-                    now_title.update()
-
-                    # 各動画の処理
-                    for idx, video in enumerate(info["entries"], start=1):
-                        title = remove_ansi_codes(video.get("title", ""))
-                        now_title.label = f"ダウンロード中のタイトル ({idx}/{total_videos})"
-                        now_title.value = title
-                        now_title.update()
-                        ydl.download([video["webpage_url"]])
+                    ydl.download([info["webpage_url"]])
 
                 else:
-                    now_title.label = "ダウンロード中のタイトル (1/1)"
-                    title = remove_ansi_codes(info.get("title", ""))
-                    now_title.value = title
-                    now_title.update()
                     ydl.download([info["webpage_url"]])
 
                 now_title.value = "なし"
@@ -180,25 +191,30 @@ def main(page: Page):
             dl_btn.text = "ダウンロード"
             dl_btn.icon = icons.DOWNLOAD
             dl_btn.update()
-            now_title.label = "ダウンロード中のタイトル"
+            now_title.label = "処理中のファイル"
             now_title.update()
 
     outpath_dialog = FilePicker(on_result=sel_path)
+    cookie_dialog = FilePicker(on_result=sel_cookie)
 
-    page.overlay.extend([outpath_dialog])
+    page.overlay.extend([outpath_dialog,cookie_dialog])
 
     # UI要素
     url_input = TextField(label="URL", hint_text="URLを入力", tooltip="URLを入力してください。\n例: https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     dl_btn = FloatingActionButton(text="ダウンロード", icon=icons.DOWNLOAD, on_click=download)
     outpath_input = TextField(value=outpath,label="保存先",expand=True,read_only=True)
     outpath_btn = TextButton("選択",icon=icons.FOLDER,on_click=lambda _:outpath_dialog.get_directory_path(dialog_title="保存先を選択"))
-    now_title = TextField(label="ダウンロード中のタイトル", read_only=True, value="なし")
+    now_title = TextField(label="処理中のファイル", read_only=True, value="なし")
     progress_bar = ProgressBar(value=0)
     ext_sel = Dropdown(label="拡張子",options=[dropdown.Option(key="mp4"), dropdown.Option(key="mp3")],expand=True,on_change=change_ext,value="mp4")
     quality_sel = Dropdown(label="品質",expand=True,options=mp4_qualitys,value=mp4_qualitys[0].key)
+    playlist = Switch(label="プレイリストのタイトルでフォルダを作成")
+    playlist_index = Switch(label="プレイリストのインデックスをファイル名に追加")
+    cookie_input = TextField(label="Cookie",expand=True,read_only=True)
+    cookie_btn = TextButton("選択",icon=icons.COOKIE,on_click=lambda _:cookie_dialog.pick_files(allow_multiple=False,allowed_extensions=["txt"]))
     status_text = Text(value="進捗情報がここに表示されます")
 
     # レイアウト
-    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]), now_title, progress_bar, status_text)
+    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]),playlist,playlist_index,Row([cookie_input,cookie_btn]), now_title, progress_bar, status_text)
 
 app(target=main, assets_dir="assets")
