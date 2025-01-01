@@ -1,2 +1,4 @@
 downloads/
 .DS_Store
+dist/
+build/

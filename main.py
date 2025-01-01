@@ -108,7 +108,13 @@ def main(page: Page):
             "outtmpl": f"{outpath}/%(title)s.%(ext)s",
             "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
             "progress_hooks": [hook],
-            "postprocessors": []
+            "postprocessors": [
+                {
+                    "key": "FFmpegMetadata",
+                    "add_metadata": True
+                }
+            ],
+            "quiet": False,
         }
 
         if cookie_input.value:
@@ -137,12 +143,25 @@ def main(page: Page):
                 ydl_opts["format"] = "bestvideo[height<=720]+bestaudio[ext=m4a]/best[ext=mp4]"
             elif quality == "1080p":
                 ydl_opts["format"] = "bestvideo[height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]"
+
+            if add_metadata.value:
+                ydl_opts["writethumbnail"] = True
+                ydl_opts["postprocessors"].append({
+                    'key': 'EmbedThumbnail'
+                })
+        
         elif ext == "mp3":
             ydl_opts["format"] = "bestaudio/best"
             ydl_opts["postprocessors"].append({
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3'
             })
+            if add_metadata.value:
+                ydl_opts["writethumbnail"] = True
+                ydl_opts["postprocessors"].append({
+                    'key': 'EmbedThumbnail'
+            })
+            
             for processor in ydl_opts["postprocessors"]:
                 if processor.get('key') == 'FFmpegExtractAudio' and processor.get('preferredcodec') == 'mp3':
                     if quality == "128kbps":
@@ -211,10 +230,11 @@ def main(page: Page):
     playlist = Switch(label="プレイリストのタイトルでフォルダを作成")
     playlist_index = Switch(label="プレイリストのインデックスをファイル名に追加")
     cookie_input = TextField(label="Cookie",expand=True,read_only=True)
+    add_metadata = Switch(label="メタデータを追加")
     cookie_btn = TextButton("選択",icon=icons.COOKIE,on_click=lambda _:cookie_dialog.pick_files(allow_multiple=False,allowed_extensions=["txt"]))
     status_text = Text(value="進捗情報がここに表示されます")
 
     # レイアウト
-    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]),playlist,playlist_index,Row([cookie_input,cookie_btn]), now_title, progress_bar, status_text)
+    page.add(url_input,Row([outpath_input,outpath_btn]), dl_btn,Row([ext_sel,quality_sel]),playlist,playlist_index,add_metadata,Row([cookie_input,cookie_btn]), now_title, progress_bar, status_text)
 
 app(target=main, assets_dir="assets")
