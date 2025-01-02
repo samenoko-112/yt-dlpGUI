@@ -28,7 +28,8 @@ def main(page: Page):
             quality_sel.options = mp3_qualitys
             quality_sel.value = mp3_qualitys[0].key
         else:
-            pass
+            quality_sel.options = []
+            quality_sel.value = "None"
         quality_sel.update()
 
     def sel_path(e: FilePickerResultEvent):
@@ -116,10 +117,16 @@ def main(page: Page):
             ],
             "quiet": False,
             "ignoreerrors": True,
+            "default_search": "ytsearch"
         }
 
         if cookie_input.value:
             ydl_opts["cookiefile"] = cookie
+
+        if ext == "サムネイル":
+            ydl_opts["writethumbnail"] = True
+            ydl_opts["skip_download"] = True
+            ydl_opts["outtmpl"] = f"{outpath}/%(title)s.%(ext)s"
 
         # プレイリストのタイトルでフォルダを作成
         if playlist.value:
@@ -144,7 +151,7 @@ def main(page: Page):
             if add_samune.value:
                 ydl_opts["writethumbnail"] = True
                 if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
-                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail"})
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail","already_have_thumbnail":False})
 
         elif ext == "mp3":
             ydl_opts["format"] = "bestaudio/best"
@@ -157,7 +164,7 @@ def main(page: Page):
             if add_samune.value:
                 ydl_opts["writethumbnail"] = True
                 if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
-                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail"})
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail","already_have_thumbnail":False})
 
             # 音質を設定
             audio_quality_map = {
@@ -210,7 +217,7 @@ def main(page: Page):
     outpath_btn = TextButton("選択",icon=icons.FOLDER,on_click=lambda _:outpath_dialog.get_directory_path(dialog_title="保存先を選択"))
     now_title = TextField(label="処理中のファイル", read_only=True, value="なし")
     progress_bar = ProgressBar(value=0)
-    ext_sel = Dropdown(label="拡張子",options=[dropdown.Option(key="mp4"), dropdown.Option(key="mp3")],expand=True,on_change=change_ext,value="mp4")
+    ext_sel = Dropdown(label="拡張子",options=[dropdown.Option(key="mp4"), dropdown.Option(key="mp3"), dropdown.Option(key="サムネイル")],expand=True,on_change=change_ext,value="mp4")
     quality_sel = Dropdown(label="品質",expand=True,options=mp4_qualitys,value=mp4_qualitys[0].key)
     playlist = Switch(label="プレイリストのタイトルでフォルダを作成")
     playlist_index = Switch(label="プレイリストのインデックスをファイル名に追加")
