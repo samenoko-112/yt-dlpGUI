@@ -35,4 +35,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    version='C:\\Users\\mimi\\AppData\\Local\\Temp\\6ed96c1a-77e5-4793-ae47-458d917b27c8',
+    icon=['assets\\icon.png'],
 )

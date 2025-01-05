@@ -3,3 +3,4 @@ downloads/
 dist/
 build/
 .DS_Store
+*.ico

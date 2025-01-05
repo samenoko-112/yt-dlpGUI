@@ -1,9 +1,7 @@
 from flet import *
 from yt_dlp import YoutubeDL
 import re
-import json
 import os
-import time
 
 outpath = os.path.expanduser('~') + "/ytdlp"
 cookie = None
