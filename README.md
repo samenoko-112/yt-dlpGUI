@@ -47,3 +47,10 @@ pyinstaller yt-dlpGUI.spec
 
 を実行してください。  
 `/dist`に保存されます。
+
+## そのほかのOSでの動作
+macOSで動作をすることを確認しています。  
+```bash
+python main.py
+```
+で動作させることが可能です。Linuxでは未検証です。
