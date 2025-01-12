@@ -137,12 +137,12 @@ def main(page: Page):
         if ext == "mp4":
             quality_formats = {
                 "Auto": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "144p": "bestvideo[height<=144]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "240p": "bestvideo[height<=240]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "360p": "bestvideo[height<=360]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "480p": "bestvideo[height<=480]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "720p": "bestvideo[height<=720]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "1080p": "bestvideo[height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "144p": "bestvideo[height<=144][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "240p": "bestvideo[height<=240][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "360p": "bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "480p": "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "720p": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "1080p": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
             }
             ydl_opts["format"] = quality_formats.get(quality, quality_formats["Auto"])  # デフォルトは"Auto"
 
