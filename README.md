@@ -1,5 +1,7 @@
 # yt-dlpGUI
 
+This is the Japanese version of the README. For the English version, click here → [en](README.en.md)
+
 ## 概要
 yt-dlpをGUIで使いやすくしたやつです。  
 私が使うために作られたやつをいい感じにいい感じにしたやつです。
