@@ -3,17 +3,26 @@ from yt_dlp import YoutubeDL
 import re
 import os
 import json
+import sys
 
 # 現在の言語を保持
 current_locale = "ja"
 translations = {}
+
+def resource_path(relative_path):
+    """PyInstaller 対応のリソースパス取得"""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)  # PyInstaller の一時ディレクトリ
+    return os.path.join(os.path.abspath("."), relative_path)
 
 def load_locale(locale: str):
     """指定された言語の翻訳を読み込む"""
     global translations, current_locale
     current_locale = locale
     try:
-        with open(f"locale/{locale}.json", "r", encoding="utf-8") as f:
+        # 修正: リソースパスから読み込む
+        locale_path = resource_path(f"locale/{locale}.json")
+        with open(locale_path, "r", encoding="utf-8") as f:
             translations = json.load(f)
     except FileNotFoundError:
         print(f"Error: locale/{locale}.json が見つかりません")
