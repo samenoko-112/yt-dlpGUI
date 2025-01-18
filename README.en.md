@@ -25,7 +25,6 @@ For `mp4`, you can select quality from `Auto`, `144p`, up to `1080p`. For `mp3`,
 ### Playlist Features
 - Creating folder with name taken from the playlist title. 
 - Add playlist index numbers to filenames.  
-These features are useful for downloading playlists.
 
 ### Thumbnail Embedding
 Thumbnails can be embedded into the downloaded files.

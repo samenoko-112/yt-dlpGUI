@@ -7,38 +7,37 @@ import sys
 import locale
 
 def resource_path(relative_path):
-    """PyInstaller 対応のリソースパス取得"""
+    """Obtaining PyInstaller-enabled resource paths"""
     if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)  # PyInstaller の一時ディレクトリ
+        return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 def detect_system_locale():
-    """システムロケールを基に言語を判定"""
+    """Determine language based on system locale"""
     lang, _ = locale.getdefaultlocale()
     return "ja" if lang and lang.startswith("ja") else "en"
 
 def load_locale(locale: str):
-    """指定された言語の翻訳を読み込む"""
+    """Load translations in a given language"""
     global translations, current_locale
 
     try:
-        # 修正: リソースパスから読み込む
         locale_path = resource_path(f"locale/{locale}.json")
         with open(locale_path, "r", encoding="utf-8") as f:
             translations = json.load(f)
     except FileNotFoundError:
-        print(f"Error: locale/{locale}.json が見つかりません")
+        print(f"Error: locale/{locale}.json not found")
         translations = {}
 
 def t(key: str) -> str:
-    """翻訳キーを取得"""
+    """Get Translation Key"""
     return translations.get(key, key)
 
-# 現在の言語を保持
-current_locale = detect_system_locale()  # ja または en を設定可能
+# Keep current language
+current_locale = detect_system_locale()
 translations = {}
 
-# システムロケールを検出して言語を読み込む
+# Detect system locale and load language
 load_locale(detect_system_locale())
 
 outpath = os.path.normpath(os.path.expanduser('~') + "/ytdlp")
@@ -82,25 +81,25 @@ def main(page: Page):
         cookie_input.value = cookie
         cookie_input.update()
 
-    # ANSIコードを削除する関数
+    # Function to delete ANSI code
     def remove_ansi_codes(text):
         return re.sub(r'\x1b\[[0-9;]*m', '', text)
 
     # ダウンロード関数
     def download(e):
-        # ダウンロードボタンを「ダウンロード中」に設定
+        # Set download button to “Downloading
         dl_btn.disabled = True
         dl_btn.text = t("download_in_progress")
         dl_btn.icon = Icons.DOWNLOADING
         dl_btn.update()
 
-        # プログレスバーとステータスを初期化
+        # Initialize progress bar and status
         progress_bar.value = None
         progress_bar.update()
         status_text.value = t("status_starting")
         status_text.update()
 
-        # yt-dlp のフック関数
+        # yt-dlp hook functions
         def hook(d):
             progress_bar.value = None
             progress_bar.update()
@@ -108,7 +107,7 @@ def main(page: Page):
             status_text.update()
 
             if d["status"] == "downloading":
-                # 進捗をパーセントからバーに変換
+                # Convert progress from percent to bar
                 progress = remove_ansi_codes(d.get("_percent_str", "0%"))
                 progress = progress.strip('%')
                 try:
@@ -118,7 +117,7 @@ def main(page: Page):
                 except ValueError:
                     pass
 
-                # その他の進捗情報を表示
+                # View other progress information
                 speed = remove_ansi_codes(d.get("_speed_str", t("unknown")))
                 eta = remove_ansi_codes(d.get("_eta_str", t("unknown")))
 
@@ -154,25 +153,25 @@ def main(page: Page):
             "default_search": "ytsearch"
         }
 
-        # Cookieファイルの設定
+        # cookie file
         if cookie_input.value:
             ydl_opts["cookiefile"] = cookie
 
-        # サムネイルの設定
+        # thumbnail
         if ext == "thumbnail":
             ydl_opts["writethumbnail"] = True
             ydl_opts["skip_download"] = True
             ydl_opts["outtmpl"] = f"{outpath}/%(title)s.%(ext)s"
 
-        # プレイリストのタイトルでフォルダを作成
+        # Create folders with playlist titles
         if playlist.value:
             ydl_opts["outtmpl"] = f"{outpath}/%(playlist_title)s/%(title)s.%(ext)s"
 
-        # プレイリストのインデックスをファイル名に追加
+        # Add playlist index to file name
         if playlist_index.value:
             ydl_opts["outtmpl"] = f"{outpath}/%(playlist_index)02d - %(title)s.%(ext)s" if not playlist.value else f"{outpath}/%(playlist_title)s/%(playlist_index)02d - %(title)s.%(ext)s"
 
-        # フォーマットの設定
+        # Formatting
         if ext == "mp4":
             quality_formats = {
                 "Auto": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
@@ -203,7 +202,7 @@ def main(page: Page):
                 if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
                     ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
 
-            # 音質を設定
+            # Set sound quality
             audio_quality_map = {
                 "128kbps": "128",
                 "192kbps": "192",
@@ -247,9 +246,9 @@ def main(page: Page):
     page.overlay.extend([outpath_dialog,cookie_dialog])
 
     def change_language(e):
-        """言語を変更し、UIを再描画する"""
+        """Change language and redraw UI"""
         load_locale(language_selector.value)
-        # 各UI要素を再描画
+        # Redraw each UI element
         url_input.label = t("url_label")
         url_input.hint_text = t("url_hint")
         url_input.tooltip = t("url_tooltip")
@@ -269,7 +268,7 @@ def main(page: Page):
         dl_btn.text = t("download_button")
         page.update()
 
-    # UI要素
+    # UI elements
     url_input = TextField(
         label=t("url_label"),
         hint_text=t("url_hint"),
@@ -329,7 +328,7 @@ def main(page: Page):
     )
     status_text = Text(value=t("progress_text"))
 
-    # 言語選択用のDropdownを追加
+    # Added Dropdown for language selection
     language_selector = Dropdown(
         label="Language",
         options=[
@@ -341,7 +340,7 @@ def main(page: Page):
         on_change=change_language
     )
 
-    # レイアウト
+    # layout
     page.add(
         language_selector,
         url_input,
