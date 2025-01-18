@@ -35,9 +35,9 @@ You can select a `cookies.txt` or other text file containing login information t
 
 ## Screenshots
 
-![image](https://github.com/user-attachments/assets/41a929f1-b9e3-497f-afb4-3335e6de8198)
+![image](https://github.com/user-attachments/assets/03ec1ddd-5d90-4697-a2a5-657e3e3f6af7)
 
-![image](https://github.com/user-attachments/assets/239eef17-f7b3-4133-89bb-ff72e0d44a2e)
+![image](https://github.com/user-attachments/assets/0aa10a48-2673-4991-a48c-dc36aedbb9eb)
 
 ## Build it Yourself
 You can build the application using `pyinstaller`.
