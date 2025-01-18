@@ -4,10 +4,7 @@ import re
 import os
 import json
 import sys
-
-# 現在の言語を保持
-current_locale = "ja"
-translations = {}
+import locale
 
 def resource_path(relative_path):
     """PyInstaller 対応のリソースパス取得"""
@@ -15,10 +12,15 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)  # PyInstaller の一時ディレクトリ
     return os.path.join(os.path.abspath("."), relative_path)
 
+def detect_system_locale():
+    """システムロケールを基に言語を判定"""
+    lang, _ = locale.getdefaultlocale()
+    return "ja" if lang and lang.startswith("ja") else "en"
+
 def load_locale(locale: str):
     """指定された言語の翻訳を読み込む"""
     global translations, current_locale
-    current_locale = locale
+
     try:
         # 修正: リソースパスから読み込む
         locale_path = resource_path(f"locale/{locale}.json")
@@ -32,9 +34,14 @@ def t(key: str) -> str:
     """翻訳キーを取得"""
     return translations.get(key, key)
 
-load_locale(current_locale)
+# 現在の言語を保持
+current_locale = detect_system_locale()  # ja または en を設定可能
+translations = {}
 
-outpath = os.path.expanduser('~') + "/ytdlp"
+# システムロケールを検出して言語を読み込む
+load_locale(detect_system_locale())
+
+outpath = os.path.normpath(os.path.expanduser('~') + "/ytdlp")
 cookie = None
 
 mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdown.Option(key="240p"), dropdown.Option(key="360p"), dropdown.Option(key="480p"), dropdown.Option(key="720p"), dropdown.Option(key="1080p")]
@@ -44,10 +51,8 @@ def main(page: Page):
     page.title = "yt-dlpGUI"
     page.window.width = 500
     page.padding = 16
-    page.fonts = {
-        "KosugiMaru": "fonts/KosugiMaru-Regular.ttf"
-    }
-    page.theme = Theme(font_family="KosugiMaru")
+    page.window.min_height = 700
+    page.window.min_width = 500
 
     def change_ext(e):
         if ext_sel.value == "mp4":
@@ -65,7 +70,7 @@ def main(page: Page):
         global outpath
         before = outpath
         outpath = e.path if e.path else before
-        outpath_input.value = outpath
+        outpath_input.value = os.path.normpath(outpath)
         outpath_input.update()
     
     def sel_cookie(e: FilePickerResultEvent):
@@ -120,8 +125,8 @@ def main(page: Page):
                 status_text.value = t("status_progress").format(progress=progress, speed=speed, eta=eta)
                 status_text.update()
 
-                title = remove_ansi_codes(d.get("filename"))
-                now_title.value = title.replace(outpath, "")
+                file = os.path.normpath(remove_ansi_codes(d.get("filename")))
+                now_title.value = file.replace(outpath+"\\", "")
                 now_title.update()
 
             elif d["status"] == "postprocessing":
@@ -154,7 +159,7 @@ def main(page: Page):
             ydl_opts["cookiefile"] = cookie
 
         # サムネイルの設定
-        if ext == t("thumbnail"):
+        if ext == "thumbnail":
             ydl_opts["writethumbnail"] = True
             ydl_opts["skip_download"] = True
             ydl_opts["outtmpl"] = f"{outpath}/%(title)s.%(ext)s"
@@ -180,7 +185,7 @@ def main(page: Page):
             }
             ydl_opts["format"] = quality_formats.get(quality, quality_formats["Auto"])
 
-            if add_samune.value:
+            if add_thumbnail.value:
                 ydl_opts["writethumbnail"] = True
                 if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
                     ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
@@ -193,7 +198,7 @@ def main(page: Page):
                     "preferredcodec": "mp3"
                 })
 
-            if add_samune.value:
+            if add_thumbnail.value:
                 ydl_opts["writethumbnail"] = True
                 if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
                     ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
@@ -213,8 +218,7 @@ def main(page: Page):
 
         try:
             with YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                ydl.download([info["webpage_url"]])
+                ydl.download([url])
                 now_title.value = t("no_file_processing")
                 now_title.update()
                 status_text.value = t("download_complete")
@@ -253,12 +257,13 @@ def main(page: Page):
         outpath_btn.text = t("select_button")
         cookie_btn.text = t("select_button")
         now_title.label = t("processing_file_label")
+        now_title.value = t("no_file_processing")
         ext_sel.label = t("extension_label")
         ext_sel.options[2].text = t("thumbnail")
         quality_sel.label = t("quality_label")
         playlist.label = t("playlist_title_switch")
         playlist_index.label = t("playlist_index_switch")
-        add_samune.label = t("add_thumbnail_switch")
+        add_thumbnail.label = t("add_thumbnail_switch")
         cookie_input.label = t("cookie_label")
         status_text.value = t("progress_text")
         dl_btn.text = t("download_button")
@@ -316,7 +321,7 @@ def main(page: Page):
         expand=True,
         read_only=True
     )
-    add_samune = Switch(label=t("add_thumbnail_switch"))
+    add_thumbnail = Switch(label=t("add_thumbnail_switch"))
     cookie_btn = TextButton(
         text=t("select_button"),
         icon=Icons.COOKIE,
@@ -329,7 +334,8 @@ def main(page: Page):
         label="Language",
         options=[
             dropdown.Option(key="ja", text="日本語"),
-            dropdown.Option(key="en", text="English")
+            dropdown.Option(key="en", text="English"),
+            dropdown.Option(key="zh-cn", text="简体中文")
         ],
         value=current_locale,
         on_change=change_language
@@ -344,7 +350,7 @@ def main(page: Page):
         Row([ext_sel, quality_sel]),
         playlist,
         playlist_index,
-        add_samune,
+        add_thumbnail,
         Row([cookie_input, cookie_btn]),
         now_title,
         progress_bar,
@@ -352,4 +358,4 @@ def main(page: Page):
     )
 
 
-app(target=main, assets_dir="assets")
+app(target=main)

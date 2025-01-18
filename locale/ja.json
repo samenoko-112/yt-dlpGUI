@@ -1,7 +1,7 @@
 {
-    "url_label": "URL",
-    "url_hint": "URLを入力",
-    "url_tooltip": "URLを入力してください。\n例: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "url_label": "URL / キーワード",
+    "url_hint": "URLまたはキーワードを入力",
+    "url_tooltip": "URLまたはキーワードを入力してください。\n例: https://www.youtube.com/watch?v=dQw4w9WgXcQ もしくは リックロール",
     "download_button": "ダウンロード",
     "download_in_progress": "ダウンロード中",
     "save_path_label": "保存先",

@@ -23,15 +23,16 @@ You can choose from `mp4`, `mp3`, or `thumbnail` formats. Note that sometimes `m
 For `mp4`, you can select quality from `Auto`, `144p`, up to `1080p`. For `mp3`, quality ranges from `Auto`, `128kbps` to `320kbps` across 4 levels.
 
 ### Playlist Features
-- Create folders named after playlist titles and save downloaded files inside.  
+- Creating folder with name taken from the playlist title. 
 - Add playlist index numbers to filenames.  
 These features are useful for downloading playlists.
 
 ### Thumbnail Embedding
 Thumbnails can be embedded into the downloaded files.
 
-### Cookie Selection
-You can select a `cookies.txt` or other text file containing login information to download videos that require authentication.
+### Selecting Cookies  
+You can use a `cookies.txt` file obtained through browser extensions (e.g., [Chrome](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc), [Firefox](https://addons.mozilla.org/ja/firefox/addon/cookies-txt/)).  
+By using `cookies.txt`, you can download member-only videos or videos that require a Premium account.
 
 ## Screenshots
 
@@ -47,9 +48,11 @@ Clone this repository, navigate to the root directory, and run:
 pyinstaller yt-dlpGUI.spec
 ```
 
-## Compatibility with Other OSes
-It has been tested and confirmed to work on macOS.  
-Run the following command to start the application:
-```bash
-python main.py
-```
+## Verified Operating Systems
+- Microsoft Windows 10.0.19045.5371 (amd64)
+- macOS 15.2 (arm64)
+- Ubuntu 24.04 (amd64)
+
+Packages for operating systems other than Windows are not distributed.  
+To run the application, you need to clone this repository, install the dependencies listed in `requirements.txt`,  
+and additionally install `ffmpeg` and, in some cases, `libmpv`.

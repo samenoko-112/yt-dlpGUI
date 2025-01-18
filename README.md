@@ -31,7 +31,8 @@ URLを入れなくても検索ワードを入れると一番上の結果をダ�
 ファイルにサムネイルを埋め込んでくれます。
 
 ### Cookieの選択
-cookies.txtなどの認証情報の入ったtxtファイルを選択してログインが必要な動画をダウンロードできるようになります。
+ブラウザの拡張機能([Chrome](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc),[FireFox](https://addons.mozilla.org/ja/firefox/addon/cookies-txt/))などを使い取得したcookies.txtを使うことが出来ます。  
+cookies.txtを使うことでメンバー限定の動画や要Premiumの動画などをダウンロードすることが出来ます。
 
 ## スクリーンショット
 
@@ -50,9 +51,11 @@ pyinstaller yt-dlpGUI.spec
 を実行してください。  
 `/dist`に保存されます。
 
-## そのほかのOSでの動作
-macOSで動作をすることを確認しています。  
-```bash
-python main.py
-```
-で動作させることが可能です。Linuxでは未検証です。
+## 動作を確認済みのOS
+- Microsoft Windows 10.0.19045.5371 (amd64)
+- macOS 15.2 (arm64)
+- Ubuntu 24.04 (amd64)
+
+Windows以外のOS向けのパッケージの配布はありません。  
+動作にはこのリポジトリをクローンしてrequirements.txtに加え、  
+ffmpeg、場合によってはlibmpvを導入する必要があります。
