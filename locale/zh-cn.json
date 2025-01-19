@@ -25,5 +25,7 @@
     "download_complete": "下载完成",
     "error_prefix": "错误: ",
     "update_available": "有了新的更新!",
-    "no_update": "使用最新版本"
+    "no_update": "使用最新版本",
+    "enable_hdr": "优先使用HDR",
+    "use_aria2c": "使用Aria2"
 }
