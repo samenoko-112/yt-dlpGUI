@@ -23,5 +23,7 @@
     "status_postprocessing": "処理中...",
     "unknown": "不明",
     "download_complete": "ダウンロード完了",
-    "error_prefix": "エラー: "
+    "error_prefix": "エラー: ",
+    "update_available": "新しいアップデートがあります!",
+    "no_update": "最新版を実行中"
 }

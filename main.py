@@ -5,12 +5,44 @@ import os
 import json
 import sys
 import locale
+import requests
+import webbrowser
 
 def resource_path(relative_path):
     """Obtaining PyInstaller-enabled resource paths"""
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
+
+def get_version():
+    try:
+        with open(resource_path("assets/version.json"), "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("version")
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError:
+        return None
+    
+def get_tag():
+    url = f"https://api.github.com/repos/samenoko-112/yt-dlpGUI/releases/latest"
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("tag_name")
+    else:
+        return None
+
+def check_update(local_version,latest_version):
+    if local_version and latest_version:
+        if local_version != latest_version:
+            return f"https://github.com/samenoko-112/yt-dlpGUI/releases/tag/{latest_version}"
+        else:
+            return None
+    else:
+        return None
 
 def detect_system_locale():
     """Determine language based on system locale"""
@@ -52,6 +84,23 @@ def main(page: Page):
     page.padding = 16
     page.window.min_height = 700
     page.window.min_width = 500
+    page.window.icon = resource_path("assets/icon.ico")
+
+    def w_init():
+        latest = check_update(get_version(),get_tag())
+        if latest:
+            snack_bar = SnackBar(Text(t("update_available")))
+            page.overlay.append(snack_bar)
+            webbrowser.open(latest)
+            snack_bar.open = True
+            page.overlay.remove(snack_bar)
+        else:
+            snack_bar = SnackBar(Text(t("no_update")))
+            page.overlay.append(snack_bar)
+            snack_bar.open = True
+            page.overlay.remove(snack_bar)
+
+    w_init()
 
     def change_ext(e):
         if ext_sel.value == "mp4":

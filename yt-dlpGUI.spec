@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('locale', 'locale')],
+    datas=[('locale', 'locale'), ('assets', 'assets')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    version='C:\\Users\\mimi\\AppData\\Local\\Temp\\df56e2d2-bad8-453d-8f1a-c3568a535b5a',
+    icon=['assets\\icon.ico'],
 )
