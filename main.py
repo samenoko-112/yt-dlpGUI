@@ -101,7 +101,7 @@ def main(page: Page):
             snack_bar.open = True
             page.overlay.remove(snack_bar)
 
-    # w_init()
+    w_init()
 
     def change_ext(e):
         if ext_sel.value == "mp4":
