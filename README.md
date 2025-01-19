@@ -30,7 +30,7 @@ URLを入れなくても検索ワードを入れると一番上の結果をダ�
 ファイルにサムネイルを埋め込んでくれます。
 
 ### Cookieの選択
-ブラウザの拡張機能([Chrome](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc),[FireFox](https://addons.mozilla.org/ja/firefox/addon/cookies-txt/))などを使い取得したcookies.txtを使うことが出来ます。  
+ブラウザの拡張機能([Chrome](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc),[Firefox](https://addons.mozilla.org/ja/firefox/addon/cookies-txt/))などを使い取得したcookies.txtを使うことが出来ます。  
 cookies.txtを使うことでメンバー限定の動画や要Premiumの動画などをダウンロードすることが出来ます。
 
 ## スクリーンショット
