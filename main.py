@@ -75,12 +75,13 @@ load_locale(detect_system_locale())
 outpath = os.path.normpath(os.path.expanduser('~') + "/ytdlp")
 cookie = None
 
-mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdown.Option(key="240p"), dropdown.Option(key="360p"), dropdown.Option(key="480p"), dropdown.Option(key="720p"), dropdown.Option(key="1080p")]
+mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdown.Option(key="240p"), dropdown.Option(key="360p"), dropdown.Option(key="480p"), dropdown.Option(key="720p"), dropdown.Option(key="1080p"), dropdown.Option(key="1440p"),dropdown.Option(key="2160p")]
 mp3_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="128kbps"), dropdown.Option(key="192kbps"), dropdown.Option(key="256kbps"), dropdown.Option(key="320kbps")]
 
 def main(page: Page):
     page.title = "yt-dlpGUI"
     page.window.width = 500
+    page.window.height = 800
     page.padding = 16
     page.window.min_height = 700
     page.window.min_width = 500
@@ -100,13 +101,16 @@ def main(page: Page):
             snack_bar.open = True
             page.overlay.remove(snack_bar)
 
-    w_init()
+    # w_init()
 
     def change_ext(e):
         if ext_sel.value == "mp4":
             quality_sel.options = mp4_qualitys
             quality_sel.value = mp4_qualitys[0].key
         elif ext_sel.value == "mp3":
+            quality_sel.options = mp3_qualitys
+            quality_sel.value = mp3_qualitys[0].key
+        elif ext_sel.value == "m4a":
             quality_sel.options = mp3_qualitys
             quality_sel.value = mp3_qualitys[0].key
         else:
@@ -155,33 +159,54 @@ def main(page: Page):
             status_text.value = t("status_processing")
             status_text.update()
 
-            if d["status"] == "downloading":
-                # Convert progress from percent to bar
-                progress = remove_ansi_codes(d.get("_percent_str", "0%"))
-                progress = progress.strip('%')
-                try:
-                    progress_float = float(progress)
-                    progress_bar.value = progress_float / 100
+            if ydl_opts["external_downloader"] != "aria2c":
+
+                if d["status"] == "downloading":
+                    # Convert progress from percent to bar
+                    progress = remove_ansi_codes(d.get("_percent_str", "0%"))
+                    progress = progress.strip('%')
+                    try:
+                        progress_float = float(progress)
+                        progress_bar.value = progress_float / 100
+                        progress_bar.update()
+                    except ValueError:
+                        pass
+
+                    # View other progress information
+                    speed = remove_ansi_codes(d.get("_speed_str", t("unknown")))
+                    eta = remove_ansi_codes(d.get("_eta_str", t("unknown")))
+
+                    status_text.value = t("status_progress").format(progress=progress, speed=speed, eta=eta)
+                    status_text.update()
+
+                    file = os.path.normpath(remove_ansi_codes(d.get("filename")))
+                    now_title.value = file.replace(outpath+"\\", "")
+                    now_title.update()
+
+                elif d["status"] == "postprocessing":
+                    progress_bar.value = None
                     progress_bar.update()
-                except ValueError:
-                    pass
+                    status_text.value = t("status_postprocessing")
+                    status_text.update()
 
-                # View other progress information
-                speed = remove_ansi_codes(d.get("_speed_str", t("unknown")))
-                eta = remove_ansi_codes(d.get("_eta_str", t("unknown")))
-
-                status_text.value = t("status_progress").format(progress=progress, speed=speed, eta=eta)
+            else:
+                progress_bar.value = None
+                progress_bar.update()
+                status_text.value = t("download_in_progress")
                 status_text.update()
 
                 file = os.path.normpath(remove_ansi_codes(d.get("filename")))
                 now_title.value = file.replace(outpath+"\\", "")
                 now_title.update()
 
-            elif d["status"] == "postprocessing":
-                progress_bar.value = None
-                progress_bar.update()
-                status_text.value = t("status_postprocessing")
-                status_text.update()
+                if d["status"] == "postprocessing":
+                    progress_bar.value = None
+                    progress_bar.update()
+                    status_text.value = t("status_postprocessing")
+                    status_text.update()
+
+
+
 
         url = url_input.value
         quality = quality_sel.value
@@ -189,7 +214,8 @@ def main(page: Page):
 
         ydl_opts = {
             "outtmpl": f"{outpath}/%(title)s.%(ext)s",
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "format_sort": ['codec:avc:aac', 'res:1080', 'hdr:sdr'],
+            "format": "bv+ba",
             "progress_hooks": [hook],
             "postprocessors": [
                 {
@@ -205,6 +231,10 @@ def main(page: Page):
         # cookie file
         if cookie_input.value:
             ydl_opts["cookiefile"] = cookie
+
+        if use_aria2c.value:
+            ydl_opts["external_downloader"] = "aria2c"
+            ydl_opts["external_downloader_args"] = ['-x', '16', '-s', '16', '-k', '1M']
 
         # thumbnail
         if ext == "thumbnail":
@@ -222,16 +252,24 @@ def main(page: Page):
 
         # Formatting
         if ext == "mp4":
+            ydl_opts['merge_output_format'] = 'mp4'
             quality_formats = {
-                "Auto": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "144p": "bestvideo[height<=144][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "240p": "bestvideo[height<=240][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "360p": "bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "480p": "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "720p": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-                "1080p": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+                "Auto": ['codec:avc:aac', 'res:1080', 'hdr:sdr'],
+                "144p": ['codec:avc:aac', 'res:144', 'hdr:sdr'],
+                "240p": ['codec:avc:aac', 'res:240', 'hdr:sdr'],
+                "360p": ['codec:avc:aac', 'res:360', 'hdr:sdr'],
+                "480p": ['codec:avc:aac', 'res:480', 'hdr:sdr'],
+                "720p": ['codec:avc:aac', 'res:720', 'hdr:sdr'],
+                "1080p": ['codec:avc:aac', 'res:1080', 'hdr:sdr'],
+                "1440p": ['codec:avc:aac', 'res:1440', 'hdr:sdr'],  # 2K
+                "2160p": ['codec:avc:aac', 'res:2160', 'hdr:sdr'],  # 4K
             }
-            ydl_opts["format"] = quality_formats.get(quality, quality_formats["Auto"])
+            ydl_opts["format_sort"] = quality_formats.get(quality, quality_formats["Auto"])
+
+            if enable_hdr.value:
+                ydl_opts["format_sort"] = [item for item in ydl_opts["format_sort"] if item != 'hdr:sdr']
+                ydl_opts["format_sort"] = ['vcodec:vp9', 'vcodec:av01'] + ydl_opts["format_sort"]
+                ydl_opts["format_sort"] = ['hdr'] + ydl_opts["format_sort"]
 
             if add_thumbnail.value:
                 ydl_opts["writethumbnail"] = True
@@ -239,6 +277,7 @@ def main(page: Page):
                     ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
 
         elif ext == "mp3":
+            ydl_opts["format_sort"] = []
             ydl_opts["format"] = "bestaudio/best"
             if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
                 ydl_opts["postprocessors"].append({
@@ -263,6 +302,68 @@ def main(page: Page):
                 for processor in ydl_opts["postprocessors"]:
                     if processor.get("key") == "FFmpegExtractAudio" and processor.get("preferredcodec") == "mp3":
                         processor["preferredquality"] = preferred_quality
+
+        elif ext == "m4a":
+            ydl_opts["format_sort"] = []
+            ydl_opts["format"] = "bestaudio/best"
+            if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
+                ydl_opts["postprocessors"].append({
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "m4a"
+                })
+
+            if add_thumbnail.value:
+                ydl_opts["writethumbnail"] = True
+                if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
+
+            # Set sound quality
+            audio_quality_map = {
+                "128kbps": "128",
+                "192kbps": "192",
+                "256kbps": "256",
+                "320kbps": "320"
+            }
+            preferred_quality = audio_quality_map.get(quality)
+            if preferred_quality:
+                for processor in ydl_opts["postprocessors"]:
+                    if processor.get("key") == "FFmpegExtractAudio" and processor.get("preferredcodec") == "mp3":
+                        processor["preferredquality"] = preferred_quality
+
+        elif ext == "wav":
+            ydl_opts["format_sort"] = []
+            ydl_opts["format"] = "bestaudio/best"
+            if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
+                ydl_opts["postprocessors"].append({
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "wav"
+                })
+
+        elif ext == "opus":
+            ydl_opts["format_sort"] = []
+            ydl_opts["format"] = "bestaudio/best"
+            if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
+                ydl_opts["postprocessors"].append({
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "opus"
+                })
+            if add_thumbnail.value:
+                ydl_opts["writethumbnail"] = True
+                if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
+
+        elif ext == "flac":
+            ydl_opts["format_sort"] = []
+            ydl_opts["format"] = "bestaudio/best"
+            if not any(p.get("key") == "FFmpegExtractAudio" for p in ydl_opts["postprocessors"]):
+                ydl_opts["postprocessors"].append({
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "flac"
+                })
+            if add_thumbnail.value:
+                ydl_opts["writethumbnail"] = True
+                if not any(p.get("key") == "EmbedThumbnail" for p in ydl_opts["postprocessors"]):
+                    ydl_opts["postprocessors"].append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
 
         try:
             with YoutubeDL(ydl_opts) as ydl:
@@ -307,7 +408,7 @@ def main(page: Page):
         now_title.label = t("processing_file_label")
         now_title.value = t("no_file_processing")
         ext_sel.label = t("extension_label")
-        ext_sel.options[2].text = t("thumbnail")
+        ext_sel.options[-1].text = t("thumbnail")
         quality_sel.label = t("quality_label")
         playlist.label = t("playlist_title_switch")
         playlist_index.label = t("playlist_index_switch")
@@ -315,6 +416,8 @@ def main(page: Page):
         cookie_input.label = t("cookie_label")
         status_text.value = t("progress_text")
         dl_btn.text = t("download_button")
+        enable_hdr.label = t("enable_hdr")
+        use_aria2c.label = t("use_aria2c")
         page.update()
 
     # UI elements
@@ -350,7 +453,11 @@ def main(page: Page):
         options=[
             dropdown.Option(key="mp4", text="MP4"),
             dropdown.Option(key="mp3", text="MP3"),
-            dropdown.Option(key="thumbnail", text=t("thumbnail"))
+            dropdown.Option(key="m4a", text="M4A"),
+            dropdown.Option(key="wav", text="WAV"),
+            dropdown.Option(key="opus", text="OPUS"),
+            dropdown.Option(key="flac", text="FLAC"),
+            dropdown.Option(key="thumbnail", text=t("thumbnail")),
         ],
         expand=True,
         on_change=change_ext,
@@ -376,6 +483,8 @@ def main(page: Page):
         on_click=lambda _: cookie_dialog.pick_files(allow_multiple=False, allowed_extensions=["txt"])
     )
     status_text = Text(value=t("progress_text"))
+    enable_hdr = Switch(label=t("enable_hdr"))
+    use_aria2c = Switch(label=t("use_aria2c"))
 
     # Added Dropdown for language selection
     language_selector = Dropdown(
@@ -398,7 +507,9 @@ def main(page: Page):
         Row([ext_sel, quality_sel]),
         playlist,
         playlist_index,
+        enable_hdr,
         add_thumbnail,
+        use_aria2c,
         Row([cookie_input, cookie_btn]),
         now_title,
         progress_bar,

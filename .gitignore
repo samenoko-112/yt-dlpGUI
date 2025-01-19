@@ -8,3 +8,5 @@ build/
 Output/
 ffmpeg/
 ffmpeg.zip
+test.py
+*.mp4
