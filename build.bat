@@ -24,7 +24,7 @@ if exist "dist" rmdir /s /q "dist"
 if exist "build" rmdir /s /q "build"
 
 REM flet pack コマンドを実行（バージョン番号を設定）
-pyinstaller --name yt-dlpGUI -F -w --icon=assets/icon.ico --add-data "locale;locale" --add-data "assets;assets" --noconfirm --clean main.py
+pyinstaller --name yt-dlpGUI -F -w --icon=assets/icon2.ico --add-data "locale;locale" --add-data "assets;assets" --noconfirm --clean main.py
 
 REM issファイルを更新
 call :update_iss "%version%" "%cd%\%ffmpeg_dir%"
