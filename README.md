@@ -19,19 +19,27 @@ yt-dlpをGUIで使いやすくしたやつです。
 URLを入れなくても検索ワードを入れると一番上の結果をダウンロードします。
 
 ### 形式・品質の選択
-形式はmp4,mp3,サムネイルから選ぶことができます。mp4はたまにmkv形式で落とされる時があります。(修正予定)  
-品質はmp4の場合、自動,144pから1080pまで選択可能。mp3の場合は自動,128kbpsから320kbpsまで4段階で選択可能です。
+形式はmp4,mp3,m4a,wav,opus,flac,サムネイルから選ぶことができます。  
+品質はmp4の場合、自動,144pから2160pまで選択可能。mp3,m4aの場合は自動,128kbpsから320kbpsまで4段階で選択可能です。
 
 ### プレイリスト云々
 プレイリストのタイトルでフォルダを作成してその中に保存したり、  
 ファイル名にプレイリストのインデックスをファイル名に追加したりってのができます。  
 
 ### サムネイルを追加
-ファイルにサムネイルを埋め込んでくれます。
+ファイルにサムネイルを埋め込んでくれます。  
+wav,opusの場合は動作しません。
 
 ### Cookieの選択
 ブラウザーの拡張機能([Chrome](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc),[Firefox](https://addons.mozilla.org/ja/firefox/addon/cookies-txt/))などを使い取得したcookies.txtを使うことが出来ます。  
 cookies.txtを使うことでメンバー限定の動画や要Premiumの動画などをダウンロードすることが出来ます。
+
+### HDRを優先
+HDRの動画を優先します。  
+
+### Aria2を使う
+外部ダウンローダーである`aria2`を使います。  
+一般的により高速になります。
 
 ## スクリーンショット
 
@@ -58,3 +66,7 @@ pyinstaller yt-dlpGUI.spec
 Windows以外のOS向けのパッケージの配布はありません。  
 動作にはこのリポジトリをクローンしてrequirements.txtに加え、  
 ffmpeg、場合によってはlibmpvを導入する必要があります。
+
+## コントリビューター
+[@samenoko-112 (開発者)](https://github.com/samenoko-112)  
+[@reindex-ot (翻訳)](https://github.com/reindex-ot)
