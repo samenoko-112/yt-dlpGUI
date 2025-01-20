@@ -26,6 +26,7 @@
     "error_prefix": "Error: ",
     "update_available": "A new update is available!",
     "no_update": "Use the latest version",
+    "download_update": "Download",
     "enable_hdr": "Prefer HDR",
     "use_aria2c": "Use Aria2"
 }

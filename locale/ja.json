@@ -26,6 +26,7 @@
     "error_prefix": "エラー: ",
     "update_available": "新しいアップデートがあります!",
     "no_update": "最新版を実行中",
+    "download_update": "ダウンロード",
     "enable_hdr": "HDR 画質を優先する",
     "use_aria2c": "Aria2 を使用してダウンロードを高速化する"
 }

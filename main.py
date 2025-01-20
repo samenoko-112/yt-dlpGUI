@@ -85,21 +85,20 @@ def main(page: Page):
     page.padding = 16
     page.window.min_height = 700
     page.window.min_width = 500
-    page.window.icon = resource_path("assets/icon.ico")
+    page.window.icon = resource_path("assets/icon2.ico")
 
     def w_init():
         latest = check_update(get_version(),get_tag())
         if latest:
-            snack_bar = SnackBar(Text(t("update_available")))
+            snack_bar = SnackBar(content=Row([Text(t("update_available")),TextButton(t("download_update"),on_click=lambda _: webbrowser.open(latest))]))
             page.overlay.append(snack_bar)
-            webbrowser.open(latest)
             snack_bar.open = True
-            page.overlay.remove(snack_bar)
+            page.update()
         else:
             snack_bar = SnackBar(Text(t("no_update")))
             page.overlay.append(snack_bar)
             snack_bar.open = True
-            page.overlay.remove(snack_bar)
+            page.update()
 
     w_init()
 
@@ -159,7 +158,7 @@ def main(page: Page):
             status_text.value = t("status_processing")
             status_text.update()
 
-            if ydl_opts["external_downloader"] != "aria2c":
+            if use_aria2c.value == False:
 
                 if d["status"] == "downloading":
                     # Convert progress from percent to bar
@@ -205,9 +204,6 @@ def main(page: Page):
                     status_text.value = t("status_postprocessing")
                     status_text.update()
 
-
-
-
         url = url_input.value
         quality = quality_sel.value
         ext = ext_sel.value
@@ -225,7 +221,7 @@ def main(page: Page):
             ],
             "quiet": False,
             "ignoreerrors": True,
-            "default_search": "ytsearch"
+            "default_search": "ytsearch",
         }
 
         # cookie file
