@@ -10,3 +10,4 @@ ffmpeg/
 ffmpeg.zip
 test.py
 *.mp4
+*.spec

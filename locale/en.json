@@ -28,5 +28,8 @@
     "no_update": "Use the latest version",
     "download_update": "Download",
     "enable_hdr": "Prefer HDR",
-    "use_aria2c": "Use Aria2"
+    "use_aria2c": "Use Aria2",
+    "about_title": "About",
+    "about_text": "Version: {version}\nDeveloper: samenoko-112\nContributor: reindex-ot",
+    "close": "Close"
 }

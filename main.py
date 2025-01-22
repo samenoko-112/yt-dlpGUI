@@ -79,11 +79,11 @@ mp4_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="144p"), dropdo
 mp3_qualitys = [dropdown.Option(key="Auto"), dropdown.Option(key="128kbps"), dropdown.Option(key="192kbps"), dropdown.Option(key="256kbps"), dropdown.Option(key="320kbps")]
 
 def main(page: Page):
-    page.title = "yt-dlpGUI"
+    page.title = f"yt-dlpGUI - {get_version()}"
     page.window.width = 500
-    page.window.height = 800
+    page.window.height = 900
     page.padding = 16
-    page.window.min_height = 700
+    page.window.min_height = 900
     page.window.min_width = 500
     page.window.icon = resource_path("assets/icon2.ico")
 
@@ -101,6 +101,38 @@ def main(page: Page):
             page.update()
 
     w_init()
+
+    def open_about_dialog(e):
+        page.overlay.append(about_dialog)
+        about_dialog.open = True
+        page.update()
+
+    def close_about_dialog(e):
+        about_dialog.open = False
+        page.update()
+
+    about_dialog = AlertDialog(
+        title=Text(t("about_title")),
+        content=Column([
+            Text(t("about_text").format(version=get_version())),
+        ]),
+        actions=[
+            TextButton(t("close"),on_click=close_about_dialog)
+        ],
+        actions_alignment=MainAxisAlignment.END,
+        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        modal=True
+    )
+
+    page.appbar = AppBar(
+        title=Text("yt-dlpGUI"),
+        center_title=False,
+        bgcolor=Colors.SURFACE,
+        actions=[
+            IconButton(icon=Icons.INFO,on_click=open_about_dialog),
+            IconButton(icon=Icons.REFRESH,on_click=lambda _: w_init())
+        ]
+    )
 
     def change_ext(e):
         if ext_sel.value == "mp4":
@@ -414,13 +446,32 @@ def main(page: Page):
         dl_btn.text = t("download_button")
         enable_hdr.label = t("enable_hdr")
         use_aria2c.label = t("use_aria2c")
+        page.appbar.actions.clear()
+        page.appbar.actions = [
+            IconButton(
+                icon=Icons.INFO,
+                on_click=open_about_dialog
+            ),
+            IconButton(
+                icon=Icons.REFRESH,
+                on_click=lambda _:w_init()
+            )
+        ]
+        about_dialog.title = Text(t("about_title"))
+        about_dialog.content = Column([
+            Text(t("about_text").format(version=get_version())),
+        ])
+        about_dialog.actions = [
+            TextButton(t("close"),on_click=close_about_dialog)
+        ]
         page.update()
 
     # UI elements
     url_input = TextField(
         label=t("url_label"),
         hint_text=t("url_hint"),
-        tooltip=t("url_tooltip")
+        tooltip=t("url_tooltip"),
+        on_submit=download
     )
     dl_btn = FloatingActionButton(
         text=t("download_button"),

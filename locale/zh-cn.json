@@ -28,5 +28,8 @@
     "no_update": "使用最新版本",
     "download_update": "下载",
     "enable_hdr": "优先使用HDR",
-    "use_aria2c": "使用Aria2"
+    "use_aria2c": "使用Aria2",
+    "about_title": "关于",
+    "about_text": "版本: {version}\n开发者: samenoko-112\n贡献者: reindex-ot",
+    "close": "关闭"
 }

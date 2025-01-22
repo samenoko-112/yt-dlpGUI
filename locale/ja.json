@@ -28,5 +28,10 @@
     "no_update": "最新版を実行中",
     "download_update": "ダウンロード",
     "enable_hdr": "HDR 画質を優先する",
-    "use_aria2c": "Aria2 を使用してダウンロードを高速化する"
+    "use_aria2c": "Aria2 を使用してダウンロードを高速化する",
+    "about_button": "このアプリについて",
+    "update_button": "アップデートを確認",
+    "about_title": "このアプリについて",
+    "about_text": "バージョン: {version}\n制作者: samenoko-112\n貢献者: reindex-ot",
+    "close": "閉じる"
 }

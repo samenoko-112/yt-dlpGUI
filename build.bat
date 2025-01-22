@@ -23,7 +23,7 @@ tar -xf "%ffmpeg_zip%" -C "%ffmpeg_dir%" --strip-components=1
 if exist "dist" rmdir /s /q "dist"
 if exist "build" rmdir /s /q "build"
 
-REM flet pack コマンドを実行（バージョン番号を設定）
+REM PyInstallerで実行ファイルをビルド（yt-dlpGUI.exe）
 pyinstaller --name yt-dlpGUI -F -w --icon=assets/icon2.ico --add-data "locale;locale" --add-data "assets;assets" --noconfirm --clean main.py
 
 REM issファイルを更新
@@ -45,22 +45,30 @@ echo Cleaning up FFmpeg files...
 if exist "%ffmpeg_zip%" del "%ffmpeg_zip%"
 if exist "%ffmpeg_dir%" rmdir /s /q "%ffmpeg_dir%"
 
-echo Installer created successfully!
+echo Installer and portable version renamed successfully!
 pause
 exit /b
 
 :update_iss
-REM バージョン番号とFFmpegをissに追加
+setlocal
 set iss_file=yt-dlp.iss
 set temp_file=%iss_file%.tmp
 
 (for /f "usebackq delims=" %%a in (`type "%iss_file%"`) do (
-    echo %%a | findstr /i "AppVersion=" >nul && (
+    set "line=%%a"
+    setlocal enabledelayedexpansion
+    echo !line! | findstr /i "AppVersion=" >nul && (
         echo AppVersion=%~1
-    ) || echo %%a
+    ) || (
+        echo !line! | findstr /i "OutputBaseFilename=" >nul && (
+            echo OutputBaseFilename=yt-dlpGUI_Installer
+        ) || (
+            echo !line!
+        )
+    )
+    endlocal
 )) > "%temp_file%"
 
-REM 元のissファイルを置き換える
 move /y "%temp_file%" "%iss_file%" >nul
-
+endlocal
 exit /b
