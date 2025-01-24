@@ -4,7 +4,7 @@
 > I have decided to temporarily suspend development due to a loss of motivation.  
 > I may resume it again if I feel inclined to do so in the future.
 
-This is the Japanese version of the README. For the English version, click here → [en](README.en.md)
+これは英語版のREADMEです。日本語版はこちら→ [ja](README.ja.md)
 
 ## Overview
 A user-friendly GUI wrapper for yt-dlp.  
