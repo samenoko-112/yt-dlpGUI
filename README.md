@@ -1,5 +1,9 @@
 # yt-dlpGUI
 
+> [!CAUTION]
+> モチベーションが切れたため一度開発を止めさせていただきます。
+> 気が向いたときにまた再開するかもしれません。
+
 This is the Japanese version of the README. For the English version, click here → [en](README.en.md)
 
 ## 概要
