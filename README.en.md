@@ -1,5 +1,9 @@
 # yt-dlpGUI
 
+> [!CAUTION]
+> I have decided to temporarily suspend development due to a loss of motivation.  
+> I may resume it again if I feel inclined to do so in the future.
+
 これは英語版のREADMEです。日本語版はこちら → [ja](README.md)
 
 ## Overview
